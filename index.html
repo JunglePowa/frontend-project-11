@@ -8,43 +8,15 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col bg-primary ">
-
-            </div>
+    <form class="row g-3">
+        <div class="col-auto input">
+          <label for="inputUrl" class="visually-hidden">Ссылка RSS</label>
+          <input autofocus required name="url" aria-label="url" class="form-control w-100" placeholder="ссылка RSS" autocomplete="off">
+          <span></span>;
         </div>
-        <div class="row" style="height: 50">
-            <div class="col bg-primary ">
-                <h1>RSS агрегатор</h1>
-            </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary mb-3">Добавить</button>
         </div>
-        <div class="row">
-            <div class="col bg-primary ">
-                <h2>Начните читать RSS сегодня! Это легко, это красиво.</h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col bg-primary ">
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                    </div>
-                    <textarea class="form-control" aria-label="With textarea"></textarea>
-                </div>
-            </div>
-            <div class="col bg-primary">
-                <button type="button" class="btn btn-secondary btn-lg">Добавить</button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col bg-primary">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col bg-primary">
-                <h3>Пример: https://ru.hexlet.io/lessons.rss</h3>
-            </div>
-        </div>
-    </div>
+      </form>
 </body>
 </html>
