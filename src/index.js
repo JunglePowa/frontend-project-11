@@ -1,5 +1,5 @@
 import 'bootstrap';
-import { app } from './view.js';
+import init from './init.js';
 
-app();
+init();
 
