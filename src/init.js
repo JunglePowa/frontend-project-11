@@ -1,15 +1,13 @@
-import { container } from 'webpack';
-import render from './view.js';
 import * as yup from 'yup';
-import i18next from 'i18next';
+import i18next, { init } from 'i18next';
+import render from './view.js';
+import onChange from 'on-change';
 
-// валидация должна быть через функцию валидейт и асинхронной
-const validate = async (url, feed) => {
-  const schema = yup.string().trim().required.url().notOneOf(feed);
+// валидация
+const validate = (url, feed) => {
+  const schema = yup.string().trim().required().url().notOneOf([feed]);
   return schema.validate(url);
 };
-
-// главная функция
 
 export default async () => {
   const defaultLanguege = 'ru';
@@ -20,10 +18,9 @@ export default async () => {
     resources: '',
   });
 
-  const state = {
-    mode: '',
+  const initialState = {
     form: {
-      processState: 'filling',
+      sate: 'filling',
       inputState: '',
       error: null,
       feeds: [],
@@ -49,27 +46,32 @@ export default async () => {
     button: document.querySelector('button'),
     feedBack: document.querySelector('.feedback'),
   };
-
-  const watchedState = render(state, elements); // ту обрабатываеся вью
-
-  // тут обрабатывается форма и ее кнопка
+  // console.log(elements);
+  const watchedState = onChange(initialState, (path, value,previousValue) => {
+    render(watchedState, elements);
+  });
+    // тут обрабатывается форма и ее кнопка
   elements.formEL.addEventListener('submit', (e) => {
     e.preventDefault();
     const data = new FormData(e.target);
     const url = data.get('url');
-    state.mode = 'form';
+    watchedState.mode = 'form';
+    console.log('Submit!');
 
-    validate(url, state.form.feeds)
-      .then((url) => {
-        state.form.feeds.push(url);
-        state.form.inputState = 'validated';
+    validate(url, watchedState.form.feeds)
+      .then((urls) => {
+        watchedState.form.feeds.push(urls);
+        watchedState.form.inputState = 'validated';
+        // console.log(state);
       })
-      .catch((e) => {
-        state.form.inputState = 'notValidated';
+      .catch((er) => {
+        watchedState.form.inputState = 'notValidated';
+        console.log('Errror');
+        // console.log(state);
       });
   });
-
-  elements.formEL.addEventListener('click', () => {
+ //  elements.formEL.addEventListener('click', () => {
     // меняем состояние
-  });
+ // });
+  // console.log(watchedState);
 };
