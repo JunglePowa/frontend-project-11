@@ -1,41 +1,38 @@
-import onChange from 'on-change';
-
 const render = (state, elements) => {
   const renderForm = () => {
-    if (state.form.inputState = 'validated') {
-      elements.input.classList.remove('is-invalid');
-      elements.feedBack.textContent = 'RSS успешно загружен';
+    if (state.form.inputState === 'validated') {
+      console.log('Positive in progress');
       elements.feedback.classList.add('text-success');
       elements.feedback.classList.remove('text-danger');
-    if (state.form.inputState = 'invalidated') {
+      elements.input.classList.remove('is-invalid');
+      elements.feedBack.textContent = 'RSS успешно загружен';
+      elements.form.reset();
+      elements.input.focus();
+      state.mode = '';
+    } else {
+      console.log('invalidated');
       elements.input.classList.add('is-invalid');
       elements.feedBack.textContent = 'Ссылка должна быть валидным URL';
       elements.feedback.classList.remove('text-success');
       elements.feedback.classList.add('text-danger');
-   
     }
-    }
-  }
+  };
 
-  switch(state.mode) {
-    case "posts": {
+  switch (state.mode) {
+    case 'posts': {
       renderPosts();
       break;
-      }
-    case "form": {
-      renderForm();
+    }
+    case 'form': {
+      renderForm(state, elements);
+      console.log('Case Form in Progress');
+      break;
+    }
+    default:
       break;
   }
-    default:
-    //url
-      throw new Error(`Uknow mode:${state.mode}`);
-    }
-}
 
-  const watch = (state, elements) =>  onChange(initialState, (path, value, previousValue) => {
-    render(watchedState, elements, i18nextInstance);
-  });
-
-  return watchedState;
+  
+};
 
 export default render;
