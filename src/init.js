@@ -19,7 +19,10 @@ export default async () => {
   });
 
   const initialState = {
+<<<<<<< HEAD
     mode: '',
+=======
+>>>>>>> 77be0ac0047789a17f12e0670f704c99d2904590
     form: {
       sate: 'filling',
       inputState: '',
