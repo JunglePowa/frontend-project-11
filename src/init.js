@@ -5,7 +5,7 @@ import onChange from 'on-change';
 
 // валидация
 const validate = (url, feed) => {
-  const schema = yup.string().trim().required().url().notOneOf([feed]);
+  const schema = yup.string().trim().required().url().notOneOf(feed);
   return schema.validate(url);
 };
 
@@ -19,11 +19,8 @@ export default async () => {
   });
 
   const initialState = {
-<<<<<<< HEAD
-    mode: '',
-=======
->>>>>>> 77be0ac0047789a17f12e0670f704c99d2904590
     form: {
+      mode: '',
       sate: 'filling',
       inputState: '',
       error: null,
@@ -45,33 +42,30 @@ export default async () => {
   };
 
   const elements = {
-    formEL: document.querySelector('form'),
+    formEl: document.querySelector('form'),
     input: document.querySelector('input'),
     button: document.querySelector('button'),
     feedBack: document.querySelector('.feedback'),
   };
   // console.log(elements);
-  const watchedState = onChange(initialState, (path, value,previousValue) => {
+  const watchedState = onChange(initialState, () => {
     render(watchedState, elements);
   });
     // тут обрабатывается форма и ее кнопка
-  elements.formEL.addEventListener('submit', (e) => {
+  elements.formEl.addEventListener('submit', (e) => {
     e.preventDefault();
     const data = new FormData(e.target);
     const url = data.get('url');
-    watchedState.mode = 'form';
     console.log('Submit!');
 
     validate(url, watchedState.form.feeds)
-      .then((urls) => {
-        watchedState.form.feeds.push(urls);
+      .then((result) => {
         watchedState.form.inputState = 'validated';
-        // console.log(state);
+        watchedState.form.feeds.push(result);
       })
       .catch((er) => {
         watchedState.form.inputState = 'notValidated';
         console.log('Errror');
-        // console.log(state);
       });
   });
  //  elements.formEL.addEventListener('click', () => {
