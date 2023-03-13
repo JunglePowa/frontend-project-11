@@ -1,9 +1,8 @@
-const render = (state, elements) => {
+const render = (state, elements, i18n) => {
   switch (state.form.inputState) {
     case 'validated': {
-      console.log('Positive in progress');
       elements.input.classList.remove('is-invalid');
-      elements.feedBack.textContent = 'RSS успешно загружен';
+      elements.feedBack.textContent = i18n.t('success');
       elements.feedBack.classList.add('text-success');
       elements.feedBack.classList.remove('text-danger');
       elements.formEl.reset();
@@ -11,10 +10,8 @@ const render = (state, elements) => {
       break;
     }
     case 'notValidated': {
-      console.log('Negative');
-      console.log('invalidated');
       elements.input.classList.add('is-invalid');
-      elements.feedBack.textContent = 'Ссылка должна быть валидным URL';
+      elements.feedBack.textContent = i18n.t('validateErrors.invalidUrl');
       elements.feedBack.classList.add('text-danger');
       elements.feedBack.classList.remove('text-success');
       elements.formEl.reset();

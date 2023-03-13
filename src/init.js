@@ -1,21 +1,25 @@
 import * as yup from 'yup';
-import i18next, { init } from 'i18next';
-import render from './view.js';
+import i18next from 'i18next';
 import onChange from 'on-change';
+import render from './view.js';
+import ru from './locales/index.js';
 
 // валидация
 const validate = (url, feed) => {
-  const schema = yup.string().trim().required().url().notOneOf(feed);
+  const schema = yup.string().trim().required().url()
+    .notOneOf(feed);
   return schema.validate(url);
 };
 
+// ДОБАВить ФУНКЦИю!
 export default async () => {
-  const defaultLanguege = 'ru';
-  const i18nextInstance = i18next.createInstance();
-  await i18nextInstance.init({
-    lng: defaultLanguege,
+  const i18n = i18next.createInstance();
+  i18n.init({
+    lng: 'ru',
     debug: false,
-    resources: '',
+    resources: {
+      ru,
+    },
   });
 
   const initialState = {
@@ -49,9 +53,9 @@ export default async () => {
   };
   // console.log(elements);
   const watchedState = onChange(initialState, () => {
-    render(watchedState, elements);
+    render(watchedState, elements, i18n);
   });
-    // тут обрабатывается форма и ее кнопка
+  // тут обрабатывается форма и ее кнопка
   elements.formEl.addEventListener('submit', (e) => {
     e.preventDefault();
     const data = new FormData(e.target);
@@ -68,8 +72,9 @@ export default async () => {
         console.log('Errror');
       });
   });
- //  elements.formEL.addEventListener('click', () => {
-    // меняем состояние
- // });
-  // console.log(watchedState);
 };
+
+//  elements.formEL.addEventListener('click', () => {
+// меняем состояние
+// });
+// console.log(watchedState);
