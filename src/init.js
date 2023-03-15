@@ -1,8 +1,8 @@
 import * as yup from 'yup';
-import i18next from 'i18next';
+import i18n from 'i18next';
 import onChange from 'on-change';
 import render from './view.js';
-import ru from './locales/index.js';
+import resources from './locales/index.js';
 
 // валидация
 const validate = (url, feed) => {
@@ -13,13 +13,11 @@ const validate = (url, feed) => {
 
 // ДОБАВить ФУНКЦИю!
 export default async () => {
-  const i18n = i18next.createInstance();
-  i18n.init({
+  const i18nInstance = i18n.createInstance();
+  await i18nInstance.init({
     lng: 'ru',
     debug: false,
-    resources: {
-      ru,
-    },
+    resources,
   });
 
   const initialState = {
@@ -27,7 +25,7 @@ export default async () => {
       mode: '',
       sate: 'filling',
       inputState: '',
-      error: null,
+      errors: [],
       feeds: [],
       valid: 'noData',
     },
@@ -53,7 +51,7 @@ export default async () => {
   };
   // console.log(elements);
   const watchedState = onChange(initialState, () => {
-    render(watchedState, elements, i18n);
+    render(watchedState, elements, i18nInstance);
   });
   // тут обрабатывается форма и ее кнопка
   elements.formEl.addEventListener('submit', (e) => {
@@ -69,7 +67,8 @@ export default async () => {
       })
       .catch((er) => {
         watchedState.form.inputState = 'notValidated';
-        console.log('Errror');
+        watchedState.form.errors.push(er.type);
+        console.log(watchedState.form.errors);
       });
   });
 };
