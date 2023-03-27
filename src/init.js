@@ -1,17 +1,19 @@
 import * as yup from 'yup';
 import i18n from 'i18next';
 import onChange from 'on-change';
-import render from './view.js';
+import axios from 'axios';
+import _ from 'lodash';
+import { renderForm, renderFeed, renderPosts } from './view.js';
 import resources from './locales/index.js';
 
-// валидация
-const validate = (url, feed) => {
+const errorMessage = '';
+
+const validate = (url, urls) => {
   const schema = yup.string().trim().required().url()
-    .notOneOf(feed);
+    .notOneOf(urls);
   return schema.validate(url);
 };
 
-// ДОБАВить ФУНКЦИю!
 export default async () => {
   const i18nInstance = i18n.createInstance();
   await i18nInstance.init({
@@ -22,25 +24,62 @@ export default async () => {
 
   const initialState = {
     form: {
-      mode: '',
-      sate: 'filling',
-      inputState: '',
-      errors: [],
-      feeds: [],
-      valid: 'noData',
+      error: '',
+      valid: '',
+      state: 'filling',
     },
-    posts: [
-      {
-        id: 0,
-        postId: 1,
-      },
-    ],
-    feed: [
-      {
-        id: 0,
-        feedId: 1, // Нормализация данных, посты и фиды связаны по ИД
-      },
-    ],
+    processing: {
+      state: '',
+      error: '',
+    },
+    urls: [],
+    posts: [],
+    feeds: [],
+  };
+
+  const parser = (xml) => {
+    const toStringParser = new DOMParser();
+    const parsedDOM = toStringParser.parseFromString(xml, 'application/xml');
+
+    const feedsTitle = parsedDOM.querySelector('title');
+    const feedsDescription = parsedDOM.querySelector('description');
+    const postsArr = [...parsedDOM.querySelectorAll('item')];
+    const parsedPosts = postsArr.map((post) => ({
+      id: _.uniqueId(),
+      title: post.querySelector('title').textContent,
+      description: post.querySelector('description').textContent,
+      link: post.querySelector('link').textContent,
+    }));
+    const parsedResult = {
+      id: _.uniqueId(),
+      title: feedsTitle.textContent,
+      description: feedsDescription.textContent,
+      posts: [...parsedPosts],
+    };
+    return parsedResult;
+  };
+
+  const readRssFlow = (url, watchedState) => {
+    watchedState.processing.state = 'loading';
+    watchedState.form.error = '';
+
+    const proxy = 'https://allorigins.hexlet.app/raw?url=';
+    const originUrl = new URL(url);
+    const rssFlow = `${proxy}${originUrl}`;
+    console.log(watchedState.feeds);
+    return axios
+      .get(rssFlow)
+      .then((response) => parser(response.data))
+      .then((data) => {
+        const { id, title, description, posts } = data;
+        watchedState.feeds.unshift({ id, title, description });
+        watchedState.posts.unshift(posts);
+        watchedState.processing.state = 'loaded';
+        console.log(watchedState.posts);
+        watchedState.feeds.map((el) => {
+          console.log(`Это фиды после рендера ${el.id}`);
+        });
+      });
   };
 
   const elements = {
@@ -48,10 +87,19 @@ export default async () => {
     input: document.querySelector('input'),
     button: document.querySelector('button'),
     feedBack: document.querySelector('.feedback'),
+    feeds: document.querySelector('div.feeds'),
+    posts: document.querySelector('div.posts'),
+
   };
-  // console.log(elements);
-  const watchedState = onChange(initialState, () => {
-    render(watchedState, elements, i18nInstance);
+
+  const watchedState = onChange(initialState, (path) => {
+    console.log(path);
+    if (path === 'form.valid' || path === 'form.erros' || path === 'urls') {
+      renderForm(watchedState, elements, i18nInstance);
+    } else if (path === 'processing.state') {
+      renderFeed(watchedState, elements, i18nInstance);
+      renderPosts(watchedState, elements, i18nInstance);
+    }
   });
   // тут обрабатывается форма и ее кнопка
   elements.formEl.addEventListener('submit', (e) => {
@@ -59,16 +107,18 @@ export default async () => {
     const data = new FormData(e.target);
     const url = data.get('url');
     console.log('Submit!');
+    console.log(url);
 
-    validate(url, watchedState.form.feeds)
-      .then((result) => {
-        watchedState.form.inputState = 'validated';
-        watchedState.form.feeds.push(result);
+    validate(url, watchedState.urls)
+      .then((url) => {
+        watchedState.urls.push(url);
+        watchedState.form.valid = 'validated';
+        readRssFlow(url, watchedState);
       })
-      .catch((er) => {
-        watchedState.form.inputState = 'notValidated';
-        watchedState.form.errors.push(er.type);
-        console.log(watchedState.form.errors);
+      .catch((err) => {
+        watchedState.form.error = err.type;
+        watchedState.form.valid = 'notValidated';
+        console.log(watchedState.form.error);
       });
   });
 };
