@@ -62,11 +62,36 @@ const renderPosts = (state, elements) => {
 
   const listGroup = document.createElement('ul');
   listGroup.classList.add('list-group', 'border-0', 'rounded-0');
+  listGroup.setAttribute('id', 'posts');
   listGroup.innerHTML = '';
 
   cardBorder.append(listGroup);
 
   const loadedPosts = state.posts.flat();
+  loadedPosts.map((post) => {
+    const listGroupItem = document.createElement('li');
+    listGroupItem.classList.add('d-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+
+    const link = document.createElement('a');
+    link.classList.add('fw-bold');
+    link.setAttribute('href', `${post.link}`);
+    link.setAttribute('target', 'blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+    link.textContent = post.title;
+
+    console.log(link.textContent);
+
+    listGroupItem.append(link);
+    listGroup.append(listGroupItem);
+  });
+};
+
+const renderUpdatedPosts = (state) => {
+  console.log('RENDERNEWPOST');
+
+  const listGroup = document.getElementById('posts');
+
+  const loadedPosts = state.newPosts.flat();
   loadedPosts.map((post) => {
     const listGroupItem = document.createElement('li');
     listGroupItem.classList.add('d-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
@@ -113,4 +138,4 @@ const renderForm = (state, elements, i18nInstance) => {
   }
 };
 
-export { renderForm, renderFeed, renderPosts };
+export { renderForm, renderFeed, renderPosts, renderUpdatedPosts };

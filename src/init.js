@@ -3,7 +3,9 @@ import i18n from 'i18next';
 import onChange from 'on-change';
 import axios from 'axios';
 import _ from 'lodash';
-import { renderForm, renderFeed, renderPosts } from './view.js';
+import {
+  renderForm, renderFeed, renderPosts, renderUpdatedPosts,
+} from './view.js';
 import resources from './locales/index.js';
 
 const errorMessage = '';
@@ -31,11 +33,14 @@ export default async () => {
     processing: {
       state: '',
       error: '',
+      update: '',
     },
     urls: [],
     posts: [],
+    newPosts: [],
     feeds: [],
   };
+  const proxy = 'https://allorigins.hexlet.app/raw?url=';
 
   const parser = (xml) => {
     const toStringParser = new DOMParser();
@@ -62,8 +67,6 @@ export default async () => {
   const readRssFlow = (url, watchedState) => {
     watchedState.processing.state = 'loading';
     watchedState.form.error = '';
-
-    const proxy = 'https://allorigins.hexlet.app/raw?url=';
     const originUrl = new URL(url);
     const rssFlow = `${proxy}${originUrl}`;
     console.log(watchedState.feeds);
@@ -71,15 +74,40 @@ export default async () => {
       .get(rssFlow)
       .then((response) => parser(response.data))
       .then((data) => {
-        const { id, title, description, posts } = data;
+        const {
+          id, title, description, posts,
+        } = data;
         watchedState.feeds.unshift({ id, title, description });
         watchedState.posts.unshift(posts);
-        watchedState.processing.state = 'loaded';
         console.log(watchedState.posts);
-        watchedState.feeds.map((el) => {
-          console.log(`Это фиды после рендера ${el.id}`);
-        });
+        watchedState.processing.state = 'loaded';
       });
+  };
+
+  const diifPosts = (arr1, arr2) => {
+    const dif = _.differenceWith(arr1, arr2, _.isEqual);
+    return dif;
+  };
+
+  const updatePosts = (state) => {
+    const recentPosts = state.posts;
+
+    const newPosts = state.urls.map((url) => {
+      const originUrl = new URL(url);
+      const rssFlow = `${proxy}${originUrl}`;
+      let newPosts = [];
+
+      axios.get(rssFlow)
+        .then((response) => parser(response.data))
+        .then((data) => {
+          newPosts = newPosts.concat(data.posts);
+        });
+    });
+
+    const updatedPosts = diifPosts(newPosts, recentPosts);
+    state.newPosts = updatedPosts.slice();
+    console.log('GET');
+    Promise.all(newPosts).finally(() => setTimeout(() => updatePosts(state), 5000));
   };
 
   const elements = {
@@ -101,6 +129,9 @@ export default async () => {
       renderPosts(watchedState, elements, i18nInstance);
     }
   });
+
+  updatePosts(watchedState);
+
   // тут обрабатывается форма и ее кнопка
   elements.formEl.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -122,7 +153,6 @@ export default async () => {
       });
   });
 };
-
 //  elements.formEL.addEventListener('click', () => {
 // меняем состояние
 // });
