@@ -127,6 +127,8 @@ export default async () => {
     } else if (path === 'processing.state') {
       renderFeed(watchedState, elements, i18nInstance);
       renderPosts(watchedState, elements, i18nInstance);
+    } else if (path === 'newPosts') {
+      renderUpdatedPosts(watchedState);
     }
   });
 
