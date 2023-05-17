@@ -4,7 +4,7 @@ import onChange from 'on-change';
 import axios from 'axios';
 import _ from 'lodash';
 import {
-  renderForm, renderFeed, renderPosts, renderUpdatedPosts,
+  renderForm, renderFeed, renderPosts, renderUpdatedPosts, renderModal,
 } from './view.js';
 import resources from './locales/index.js';
 
@@ -39,12 +39,15 @@ export default async () => {
     posts: [],
     newPosts: [],
     feeds: [],
+    viewedPosts: [],
+    modalPost: '',
   };
   const proxy = 'https://allorigins.hexlet.app/raw?url=';
 
   const parser = (xml) => {
     const toStringParser = new DOMParser();
     const parsedDOM = toStringParser.parseFromString(xml, 'application/xml');
+    console.log(parsedDOM);
 
     const feedsTitle = parsedDOM.querySelector('title');
     const feedsDescription = parsedDOM.querySelector('description');
@@ -84,11 +87,13 @@ export default async () => {
       });
   };
 
-  const diifPosts = (arr1, arr2) => {
+  // сравнение новых и загруженных постов, возврщает новые посты
+  const diffPosts = (arr1, arr2) => {
     const dif = _.differenceWith(arr1, arr2, _.isEqual);
     return dif;
   };
 
+  // обновление постов
   const updatePosts = (state) => {
     const recentPosts = state.posts;
 
@@ -103,10 +108,11 @@ export default async () => {
           newPosts = newPosts.concat(data.posts);
         });
     });
-
-    const updatedPosts = diifPosts(newPosts, recentPosts);
+    // каждые 5 запускает обновление постов
+    const updatedPosts = diffPosts(newPosts, recentPosts);
     state.newPosts = updatedPosts.slice();
-    console.log('GET');
+    console.log('GET NEW POSTS');
+    console.log(state.newPosts);
     Promise.all(newPosts).finally(() => setTimeout(() => updatePosts(state), 5000));
   };
 
@@ -117,9 +123,14 @@ export default async () => {
     feedBack: document.querySelector('.feedback'),
     feeds: document.querySelector('div.feeds'),
     posts: document.querySelector('div.posts'),
+    modal: {
+      title: document.querySelector('.modal-title'),
+      body: document.querySelector('.modal-body'),
+      button: document.querySelector('a[role="button"]'),
+    },
 
   };
-
+  // следит за состоянием и на каждое изменение запускает функцию рендера
   const watchedState = onChange(initialState, (path) => {
     console.log(path);
     if (path === 'form.valid' || path === 'form.erros' || path === 'urls') {
@@ -129,10 +140,29 @@ export default async () => {
       renderPosts(watchedState, elements, i18nInstance);
     } else if (path === 'newPosts') {
       renderUpdatedPosts(watchedState);
+    } else if (path === 'viewedPosts') {
+      renderPosts(watchedState, elements, i18nInstance);
+    } else if (path === 'modalPost') {
+      renderModal(watchedState, elements);
     }
   });
 
   updatePosts(watchedState);
+  console.log(watchedState.viewedPosts);
+
+// обработка модалки
+  elements.posts.addEventListener('click', ({ target }) => {
+    if (target.dataset.id) {
+      const { id } = target.dataset;
+      if (!watchedState.viewedPosts.includes(id)) {
+        watchedState.viewedPosts.push(id);
+        watchedState.modalPost = id;
+      }
+    }
+    console.log(watchedState.viewedPosts);
+    console.log(watchedState.modalPost);
+    return false;
+  });
 
   // тут обрабатывается форма и ее кнопка
   elements.formEl.addEventListener('submit', (e) => {
@@ -141,7 +171,7 @@ export default async () => {
     const url = data.get('url');
     console.log('Submit!');
     console.log(url);
-
+    // После нажатия кнопки идет валидация, после успешной валдации чтение рсс потока
     validate(url, watchedState.urls)
       .then((url) => {
         watchedState.urls.push(url);
@@ -155,7 +185,3 @@ export default async () => {
       });
   });
 };
-//  elements.formEL.addEventListener('click', () => {
-// меняем состояние
-// });
-// console.log(watchedState);

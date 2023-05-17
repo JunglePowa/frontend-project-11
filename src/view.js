@@ -71,19 +71,47 @@ const renderPosts = (state, elements) => {
   loadedPosts.map((post) => {
     const listGroupItem = document.createElement('li');
     listGroupItem.classList.add('d-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+    const button = document.createElement('button');
+    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.setAttribute('type', 'button');
+    button.setAttribute('data-id', `${post.id}`);
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#modal');
+    button.textContent = 'Просмотр';
 
     const link = document.createElement('a');
-    link.classList.add('fw-bold');
+    if (state.viewedPosts.includes(post.id)) {
+      link.classList.add('fw-normal', 'link-secondary');
+    } else {
+      link.classList.add('fw-bold');
+    }
     link.setAttribute('href', `${post.link}`);
+    link.setAttribute('data-id', `${post.id}`);
     link.setAttribute('target', 'blank');
     link.setAttribute('rel', 'noopener noreferrer');
     link.textContent = post.title;
 
+//ОСТАНОВИЛСЯ Я НА ТОМ, ЧТО ПОСЛЕ НАЖАТИЯ НА КНОПКУ ЗАПИСЫВАЕТСЯ ИД ПОСТА В СТЕЙТ, НУЖНО СДЕЛАТЬ ЧТОБЫ ЛИНК СТАНОВИЛСЯ СЕРЫМ КАК И КНОПКА
+//НАО НАПИСТАЬ ОТДЕЛЬНУЮ ФУНКЦИЮ ДЛЯ РЕНДЕРА ПРОСМОТреННЫХ ПОСТОВ
+// НАДО ОТРИСОВАТЬ МОДАЛКУ
+
+    
+
     console.log(link.textContent);
 
     listGroupItem.append(link);
+    listGroupItem.append(button);
     listGroup.append(listGroupItem);
   });
+};
+const renderModal = (state, elements) => {
+  console.log('RENDERMODAL');
+  const postId = state.modalPost;
+  const modalPost = state.posts.flat().find(postId);
+  const { title, description, link } = modalPost;
+  elements.modal.title.textContent = title;
+  elements.modal.body.textContent = description;
+  elements.modal.button.setAttribute('href', `${link}`);
 };
 
 const renderUpdatedPosts = (state) => {
@@ -138,4 +166,4 @@ const renderForm = (state, elements, i18nInstance) => {
   }
 };
 
-export { renderForm, renderFeed, renderPosts, renderUpdatedPosts };
+export { renderForm, renderFeed, renderPosts, renderUpdatedPosts, renderModal };
