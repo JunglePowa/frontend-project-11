@@ -81,6 +81,7 @@ const renderPosts = (state, elements) => {
 
     const link = document.createElement('a');
     if (state.viewedPosts.includes(post.id)) {
+      link.classList.remove('fw-bold');
       link.classList.add('fw-normal', 'link-secondary');
     } else {
       link.classList.add('fw-bold');
@@ -91,12 +92,6 @@ const renderPosts = (state, elements) => {
     link.setAttribute('rel', 'noopener noreferrer');
     link.textContent = post.title;
 
-//ОСТАНОВИЛСЯ Я НА ТОМ, ЧТО ПОСЛЕ НАЖАТИЯ НА КНОПКУ ЗАПИСЫВАЕТСЯ ИД ПОСТА В СТЕЙТ, НУЖНО СДЕЛАТЬ ЧТОБЫ ЛИНК СТАНОВИЛСЯ СЕРЫМ КАК И КНОПКА
-//НАО НАПИСТАЬ ОТДЕЛЬНУЮ ФУНКЦИЮ ДЛЯ РЕНДЕРА ПРОСМОТреННЫХ ПОСТОВ
-// НАДО ОТРИСОВАТЬ МОДАЛКУ
-
-    
-
     console.log(link.textContent);
 
     listGroupItem.append(link);
@@ -104,10 +99,11 @@ const renderPosts = (state, elements) => {
     listGroup.append(listGroupItem);
   });
 };
+
 const renderModal = (state, elements) => {
   console.log('RENDERMODAL');
   const postId = state.modalPost;
-  const modalPost = state.posts.flat().find(postId);
+  const modalPost = state.posts.flat().find((post) => post.id === postId);
   const { title, description, link } = modalPost;
   elements.modal.title.textContent = title;
   elements.modal.body.textContent = description;
