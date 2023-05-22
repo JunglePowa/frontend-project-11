@@ -10,15 +10,15 @@ import resources from './locales/index.js';
 
 export default () => {
   yup.setLocale({
-    mixed: {
-      default: 'field_invalid',
-      notOneOf: 'notOneOf',
-      required: 'required_feild',
-    },
     string: {
-      url: 'incorrect_format',
+      url: () => ({ key: 'incorrect_format' }),
+      required: () => ({ key: 'required' }),
+    },
+    mixed: {
+      notOneOf: () => ({ key: 'notOneOf' }),
     },
   });
+
   const defaultLanguage = 'ru';
   const i18nInstance = i18n.createInstance();
   i18nInstance.init({
