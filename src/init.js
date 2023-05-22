@@ -12,7 +12,7 @@ export default () => {
   yup.setLocale({
     mixed: {
       default: 'field_invalid',
-      notOneOf: 'duble_link',
+      notOneOf: 'notOneOf',
       required: 'required_feild',
     },
     string: {
