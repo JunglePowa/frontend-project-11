@@ -92,6 +92,17 @@ export default () => {
           watchedState.posts.unshift(posts);
           console.log(watchedState.posts);
           watchedState.processing.state = 'loaded';
+        })
+        .catch((error) => {
+          if (error.isAxiosError) {
+            watchedState.rssForm.error = 'error_messages.network_error';
+          } else if (error.isParsingError) {
+            watchedState.form.error = 'error_messages.incorrect_url';
+          } else {
+            watchedState.form.error = 'error_messages.unknown_error';
+          }
+          watchedState.form.state = 'formFilling';
+          watchedState.form.valid = 'notValidated';
         });
     };
 
@@ -170,6 +181,7 @@ export default () => {
     });
     updatePosts(watchedState);
   });
+
   const elements = {
     formEl: document.querySelector('form'),
     input: document.querySelector('input'),

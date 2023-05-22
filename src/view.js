@@ -150,7 +150,6 @@ const renderForm = (state, elements, i18nInstance) => {
       console.log(errorMessage);
       elements.input.classList.add('is-invalid');
       elements.feedBack.textContent = i18nInstance.t(`${errorMessage}`);
-      console.log(`Сообщение в блоке НотВалид, ЕрорМессадж = ${errorMessage}`);
       elements.feedBack.classList.add('text-danger');
       elements.feedBack.classList.remove('text-success');
       elements.formEl.reset();

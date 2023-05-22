@@ -1,6 +1,6 @@
 export default {
   translation: {
-    successful_message: 'RSS successfully uploaded',
+    rssLoadSuccess: 'RSS successfully uploaded',
     error_messages: {
       incorrect_format: 'The link must be a valid URL',
       notOneOf: 'RSS already exists',
