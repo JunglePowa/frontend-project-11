@@ -80,6 +80,7 @@ const updatePosts = (state) => {
       });
   });
   const updatedPosts = diffPosts(newPosts, recentPosts);
+  
   state.newPosts = updatedPosts.slice();
   console.log('GET NEW POSTS');
   console.log(state.newPosts);
@@ -94,11 +95,11 @@ const diffPosts = (arr1, arr2) => {
 export default () => {
   yup.setLocale({
     string: {
-      url: () => ({ key: 'notUrl' }),
+      url: () => ({ key: 'url' }),
       required: () => ({ key: 'empty' }),
     },
     mixed: {
-      notOneOf: () => ({ key: 'alreadyInList' }),
+      notOneOf: () => ({ key: 'notOneOf' }),
     },
   });
 
