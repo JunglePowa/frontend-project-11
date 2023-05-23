@@ -1,7 +1,7 @@
 export default {
   translation: {
     errors: {
-      notUrl: 'Ссылка должна быть валидным URL',
+      url: 'Ссылка должна быть валидным URL',
       notOneOf: 'RSS уже существует',
       notRss: 'Ресурс не содержит валидный RSS',
       networkError: 'Ошибка сети',
