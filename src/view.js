@@ -2,8 +2,6 @@ const renderFeed = (state, elements) => {
   const { feeds } = elements;
   feeds.innerHTML = '';
 
-  console.log('RENDERFEED');
-
   const cardBorder = document.createElement('div');
   cardBorder.classList.add('card', 'border-0');
 
@@ -133,27 +131,36 @@ const renderUpdatedPosts = (state) => {
     listGroup.append(listGroupItem);
   });
 };
+// Надо проверить рендер ошибок, тексты ошибок рисутются через отдельную функцию, проверить рендеры состояний
+const renderNotValid = ({ button, input, feedBack }) => {
+  button.disabled = false;
+  input.classList.add('is-invalid');
+  feedBack.classList.remove('text-success');
+  feedBack.classList.remove('text-warning');
+  feedBack.classList.add('text-danger');
+  elements.input.focus();
+};
 
-const renderForm = (state, elements, i18nInstance) => {
-  switch (state.form.valid) {
-    case 'validated': {
-      elements.input.classList.remove('is-invalid');
-      elements.feedBack.textContent = i18nInstance.t('rssLoadSuccess');
-      elements.feedBack.classList.add('text-success');
-      elements.feedBack.classList.remove('text-danger');
-      elements.formEl.reset();
-      elements.input.focus();
+const renderValid = ({
+  button, input, feedBack, formEl,
+}, i18next) => {
+  button.disabled = false;
+  input.classList.remove('is-invalid');
+  feedBack.classList.remove('text-danger');
+  feedBack.classList.remove('text-warning');
+  feedBack.classList.add('text-success');
+  feedBack.textContent = i18next.t('status.success');
+  formEl.reset();
+  input.focus();
+};
+
+const renderState = (elements, i18next, value) => {
+  switch (value) {
+    case 'notValidated':
+      renderNotValid(elements);
       break;
-    }
-    case 'notValidated': {
-      const errorMessage = state.form.error;
-      console.log(errorMessage);
-      elements.input.classList.add('is-invalid');
-      elements.feedBack.textContent = i18nInstance.t(`${errorMessage}`);
-      elements.feedBack.classList.add('text-danger');
-      elements.feedBack.classList.remove('text-success');
-      elements.formEl.reset();
-      elements.input.focus();
+    case 'validated': {
+      renderValid(elements, i18next);
       break;
     }
     default:
@@ -161,4 +168,39 @@ const renderForm = (state, elements, i18nInstance) => {
   }
 };
 
-export { renderForm, renderFeed, renderPosts, renderUpdatedPosts, renderModal };
+const renderError = (state, { feedBack }, i18next, error) => {
+  if (error === null) {
+    return;
+  }
+
+  feedBack.classList.add('text-danger');
+  feedBack.textContent = i18next.t(`errors.${state.form.error}`);
+};
+
+const render = (state, elements, i18next) => (path, value) => {
+  switch (path) {
+    case 'form.state':
+      renderState(elements, i18next, value);
+      break;
+    case 'form.error':
+      renderError(state, elements, i18next, value);
+      break;
+    case 'feeds':
+      renderFeed(state, elements, i18next);
+      renderPosts(state, elements, i18next);
+      break;
+    case 'modalPosts':
+      renderModal(state, elements, value);
+      break;
+    case 'newPosts':
+      renderUpdatedPosts(state);
+      break;
+    case 'viewedPosts':
+      renderPosts(state, elements, i18next);
+      break;
+    default:
+      break;
+  }
+};
+
+export default render;
